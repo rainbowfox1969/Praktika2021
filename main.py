@@ -69,23 +69,23 @@ def test1():
                 for j in range(len(sigma[m])):
                     if sig_k[i] == sig_m[j]:
                         L.insert(0, sig_k[i])
-
     #Строка9-15
             if L[0] != t:
                 U[t].insert(i, L[0])
+            elif len(L) > 1 and L[1] != t:
+                U[t].insert(i, L[1])
             # else:
             #     for x in range(15):
             #         countr = 0
             #         if tri_mesh.elements[x, 0] == L[0] or tri_mesh.elements[x, 1] == L[0] or tri_mesh.elements[x, 2] == L[0]:
             #             countr = countr + 1
-            #         if tri_mesh.elements[x, 0] == L[1] or tri_mesh.elements[x, 1] == L[1] or tri_mesh.elements[x, 2] == L[1]:
+            #         if len(L) > 1 and (tri_mesh.elements[x, 0] == L[1] or tri_mesh.elements[x, 1] == L[1] or tri_mesh.elements[x, 2] == L[1]):
             #             countr = countr + 1
             #         if x != t and countr > 0:
             #             U[t].insert(i, x)
-        print(L)
-
+    print(U)
     # ==================================
-    # Алгоритм 21 стр100
+    #Алгоритм 21 стр100
     # V = tri_mesh.nodes
     # T = topology.elements_indices
     # M = topology.elements_indices
@@ -93,10 +93,10 @@ def test1():
     #
     # while len(M) > 0:
     #     for i in range(len(M)):
-            # ==================================
-            # Алгоритм 22 стр101
-            # ==================================
-        #     T.append()
+            #Алгоритм 22 стр101================
+
+            #==================================
+        #     T.insert()
         #     del M[i], T[i]
         # for z in range(len(T)):
         #     if C[z] == 1:
