@@ -1,7 +1,6 @@
 import numpy as np
 from TriMesh import TriMesh
 
-
 def test1():
     global vrem
     contour = [[0.0, 0.0],
@@ -21,8 +20,8 @@ def test1():
     # Взятие топологии
     topology = tri_mesh.get_topology()
 
-    print(topology.faces)
     print(topology.elements_indices)
+    print(topology.faces2elements)
     # topology.faces: Грани элементов (стороны треугольников).
     # topology.faces_indices : Элементы, состоящие из граней.
     # topology.elements_indices : Индексы элементов.
@@ -74,6 +73,8 @@ def test1():
                 U[t].insert(i, L[0])
             elif len(L) > 1 and L[1] != t:
                 U[t].insert(i, L[1])
+            else:
+                U[t].insert(i, -1)
             # else:
             #     for x in range(15):
             #         countr = 0
@@ -86,15 +87,45 @@ def test1():
     print(U)
     # ==================================
     #Алгоритм 21 стр100
-    # V = tri_mesh.nodes
-    # T = topology.elements_indices
-    # M = topology.elements_indices
-    # C = []
-    #
+    V = tri_mesh.nodes
+    T = topology.elements_indices
+    M = T
+    C = []
+
     # while len(M) > 0:
     #     for i in range(len(M)):
+    for c in range(1):
+        for i in range(len(M)):
             #Алгоритм 22 стр101================
+            # Строка1
+            R = []
+            temp = 0
+            tek = U[i]
+            if tek[0] == -1 or tek[1] == -1 or tek[2] == -1:
+                neighbor = -1
+            else:
+                for v in range(3):
+                    if tri_mesh.elements[i, v] >= temp:
+                        temp = tri_mesh.elements[i, v]
+                        mark_edge = v
+                        neighbor = tek[mark_edge]
 
+            # Строка2-6
+            # if neighbor[1] == neighbor[2]
+            # нахождение ребра и координат его середины, создание нового узла(вершины), добваление в массив
+            vspom = tri_mesh.elements[i]
+            f = vspom.max()
+            j = 0
+            if vspom[0] == f:
+                j = 0
+            elif vspom[1] == f:
+                j = 1
+            else:
+                j = 2
+            new_vspom = np.delete(vspom, j)
+            coord_a = tri_mesh.nodes[new_vspom[0]]
+            coord_b = tri_mesh.nodes[new_vspom[1]]
+            new_v = [(coord_a[0] + coord_b[0])/2, (coord_a[1] + coord_b[1])/2]
             #==================================
         #     T.insert()
         #     del M[i], T[i]
