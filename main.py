@@ -126,6 +126,8 @@ def test1():
             coord_a = tri_mesh.nodes[new_vspom[0]]
             coord_b = tri_mesh.nodes[new_vspom[1]]
             new_v = [(coord_a[0] + coord_b[0])/2, (coord_a[1] + coord_b[1])/2]
+            np.append(V, new_v)
+            print(new_v)
             #==================================
         #     T.insert()
         #     del M[i], T[i]
