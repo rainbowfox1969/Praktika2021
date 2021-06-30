@@ -87,10 +87,16 @@ def test1():
     print(U)
     # ==================================
     #Алгоритм 21 стр100
-    V = tri_mesh.nodes
+    V = []
     T = topology.elements_indices
     M = T
     C = []
+
+    #Преобразование массива
+    for m in range(len(tri_mesh.nodes)):
+        V.insert(m, [])
+        V[m].insert(0,tri_mesh.nodes[m, 0])
+        V[m].insert(1, tri_mesh.nodes[m, 1])
 
     # while len(M) > 0:
     #     for i in range(len(M)):
@@ -126,8 +132,18 @@ def test1():
             coord_a = tri_mesh.nodes[new_vspom[0]]
             coord_b = tri_mesh.nodes[new_vspom[1]]
             new_v = [(coord_a[0] + coord_b[0])/2, (coord_a[1] + coord_b[1])/2]
-            np.append(V, new_v)
-            print(new_v)
+
+            # np.append(V, new_v)
+            signal = 0
+            for c in range(len(V)):
+                if new_v == V[c]:
+                    signal = -1
+            if signal != -1:
+                # np.append(V, new_v)
+                V.insert(len(V) + i, new_v)
+    #Обратное преобразование массива в numpy
+    New_nodes = np.array(V)
+    print(New_nodes)
             #==================================
         #     T.insert()
         #     del M[i], T[i]
@@ -139,6 +155,9 @@ def test1():
     from mayavi import mlab
     mlab.triangular_mesh(tri_mesh.nodes[:, 0], tri_mesh.nodes[:, 1], np.array([0] * len(tri_mesh.nodes)),
                          tri_mesh.elements, representation='wireframe')
+
+    # mlab.triangular_mesh(New_nodes[:, 0], New_nodes[:, 1], np.array([0] * len(New_nodes)),
+    #                      tri_mesh.elements, representation='wireframe')
 
     mlab.show()
 
