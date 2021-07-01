@@ -21,7 +21,6 @@ def test1():
     topology = tri_mesh.get_topology()
 
     print(topology.elements_indices)
-    print(topology.faces2elements)
     # topology.faces: Грани элементов (стороны треугольников).
     # topology.faces_indices : Элементы, состоящие из граней.
     # topology.elements_indices : Индексы элементов.
@@ -88,6 +87,7 @@ def test1():
     # ==================================
     #Алгоритм 21 стр100
     V = []
+    el = []
     T = topology.elements_indices
     M = T
     C = []
@@ -118,7 +118,7 @@ def test1():
 
             # Строка2-6
             # if neighbor[1] == neighbor[2]
-            # нахождение ребра и координат его середины, создание нового узла(вершины), добваление в массив
+            # нахождение ребра и координат его середины, создание нового узла(вершины), добавление в массив
             vspom = tri_mesh.elements[i]
             f = vspom.max()
             j = 0
@@ -141,9 +141,14 @@ def test1():
             if signal != -1:
                 # np.append(V, new_v)
                 V.insert(len(V) + i, new_v)
+            el.append([f, len(V) - 1, new_vspom[0]])
+            el.append([f, len(V) - 1, new_vspom[1]])
+
     #Обратное преобразование массива в numpy
-    New_nodes = np.array(V)
-    print(New_nodes)
+    new_nodes = np.array(V)
+    new_elements = np.array(el)
+    print(new_nodes)
+    print(new_elements)
             #==================================
         #     T.insert()
         #     del M[i], T[i]
@@ -153,11 +158,11 @@ def test1():
     # ==================================
     # визуализация триангуляции
     from mayavi import mlab
-    mlab.triangular_mesh(tri_mesh.nodes[:, 0], tri_mesh.nodes[:, 1], np.array([0] * len(tri_mesh.nodes)),
-                         tri_mesh.elements, representation='wireframe')
-
-    # mlab.triangular_mesh(New_nodes[:, 0], New_nodes[:, 1], np.array([0] * len(New_nodes)),
+    # mlab.triangular_mesh(tri_mesh.nodes[:, 0], tri_mesh.nodes[:, 1], np.array([0] * len(tri_mesh.nodes)),
     #                      tri_mesh.elements, representation='wireframe')
+
+    mlab.triangular_mesh(new_nodes[:, 0], new_nodes[:, 1], np.array([0] * len(new_nodes)),
+                         new_elements, representation='wireframe')
 
     mlab.show()
 
