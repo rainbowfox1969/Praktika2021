@@ -91,12 +91,17 @@ def test1():
     T = topology.elements_indices
     M = T
     C = []
+    sig =[]
 
     #Преобразование массива
     for m in range(len(tri_mesh.nodes)):
         V.insert(m, [])
         V[m].insert(0,tri_mesh.nodes[m, 0])
         V[m].insert(1, tri_mesh.nodes[m, 1])
+
+    #массив сигналов
+    for d in range(len(M)):
+        sig.append(0)
 
     # while len(M) > 0:
     #     for i in range(len(M)):
@@ -133,21 +138,40 @@ def test1():
             coord_b = tri_mesh.nodes[new_vspom[1]]
             new_v = [(coord_a[0] + coord_b[0])/2, (coord_a[1] + coord_b[1])/2]
 
-            # np.append(V, new_v)
             signal = 0
             for c in range(len(V)):
                 if new_v == V[c]:
                     signal = -1
             if signal != -1:
-                # np.append(V, new_v)
                 V.insert(len(V) + i, new_v)
-            el.append([f, len(V) - 1, new_vspom[0]])
-            el.append([f, len(V) - 1, new_vspom[1]])
+            if sig[i] != 1:
+                el.append([f, len(V) - 1, new_vspom[0]])
+                el.append([f, len(V) - 1, new_vspom[1]])
+                sig[i] = 1
+
+            if len(el) < neighbor:
+                if neighbor != -1:
+                    vn = tri_mesh.elements[neighbor]
+                    m = vn.max()
+                    p = 0
+                    if vspom[0] == f:
+                        p = 0
+                    elif vspom[1] == f:
+                        p = 1
+                    else:
+                        p = 2
+                    vn = np.delete(vspom, p)
+                    # el.insert(neighbor, [m, len(V) - 1, vn[0]])
+                    # el.insert(neighbor, [m, len(V) - 1, vn[1]])
+                    if sig[neighbor] != 1:
+                        el.append([m, len(V) - 1, vn[0]])
+                        el.append([m, len(V) - 1, vn[1]])
+                        sig[neighbor] = 1
+
 
     #Обратное преобразование массива в numpy
     new_nodes = np.array(V)
     new_elements = np.array(el)
-    print(new_nodes)
     print(new_elements)
             #==================================
         #     T.insert()
