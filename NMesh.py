@@ -110,7 +110,6 @@ class NMesh:
         assert False
 
 
-
 class NTopology:
     def __init__(self, mesh, layers=None, deep=-1):
         """Нахождение граней(общих вершин, ребер или треугольников) элементов.
