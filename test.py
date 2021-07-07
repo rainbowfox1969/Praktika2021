@@ -14,13 +14,13 @@ def test1():
     # Создание триангуляционной сетки
     tri_mesh = TriMesh.from_contour(contour, facets, max_volume)
     # вывод элементов(треугольников) и узлов сетки
-    print(tri_mesh.elements)
-    print(tri_mesh.nodes)
+    # print(tri_mesh.elements)
+    # print(tri_mesh.nodes)
 
     # Взятие топологии
     topology = tri_mesh.get_topology()
 
-    print(topology.elements_indices)
+    # print(topology.elements_indices)
     # topology.faces: Грани элементов (стороны треугольников).
     # topology.faces_indices : Элементы, состоящие из граней.
     # topology.elements_indices : Индексы элементов.
@@ -31,7 +31,7 @@ def test1():
     # Алгоритм 20 стр99
     sigma = {}
     U = {}
-    for i in range(16):
+    for i in range(len(topology.elements_indices)):
         U[i] = []
     # Строка1
     for i in range(len(tri_mesh.nodes)):
@@ -46,7 +46,7 @@ def test1():
             elif tri_mesh.elements[t, 2] == v:
                 sigma[v].insert(2, t)
     # Строка5-7
-    for t in range(16):
+    for t in range(len(topology.elements_indices)):
         vrem = tri_mesh.elements[t]
         for i in range(3):
             x = vrem[i]
@@ -83,13 +83,47 @@ def test1():
             #             countr = countr + 1
             #         if x != t and countr > 0:
             #             U[t].insert(i, x)
+
+    #Словарь D
+    D = {}
+    for t in range(len(topology.elements_indices)):
+        #Нахождение помеченного ребра через координаты
+        versh = tri_mesh.elements[t]
+        A = tri_mesh.nodes[versh[0]]
+        B = tri_mesh.nodes[versh[1]]
+        C = tri_mesh.nodes[versh[2]]
+        dlina = []
+        dlina_ab = np.sqrt((A[0]-B[0])*(A[0]-B[0])+(A[1]-B[1])*(A[1]-B[1]))
+        dlina_bc = np.sqrt((C[0]-B[0])*(C[0]-B[0])+(C[1]-B[1])*(C[1]-B[1]))
+        dlina_ac = np.sqrt((A[0]-C[0])*(A[0]-C[0])+(A[1]-C[1])*(A[1]-C[1]))
+        dlina_srav = 0
+        dlina.append(dlina_ab)
+        dlina.append(dlina_bc)
+        dlina.append(dlina_ac)
+        pos = 0
+
+        for i in range(3):
+            if dlina[i] > dlina_srav:
+                dlina_srav = dlina[i]
+                rebro = i
+
+        if rebro == 0:
+            pos = 2
+        if rebro == 1:
+            pos = 0
+        if rebro == 2:
+            pos = 1
+
+        D[t] = ([versh[0], versh[1], versh[2]], pos)
+
+    print(D)
     print(U)
     # ==================================
     #Алгоритм 21 стр100
     V = []
     el = []
-    T = topology.elements_indices
-    M = T
+    T = list(topology.elements_indices)
+    M = T[:]
     C = []
     sig =[]
 
@@ -115,14 +149,15 @@ def test1():
             if tek[0] == -1 or tek[1] == -1 or tek[2] == -1:
                 neighbor = -1
             else:
-                for v in range(3):
-                    if tri_mesh.elements[i, v] >= temp:
-                        temp = tri_mesh.elements[i, v]
-                        mark_edge = v
-                        neighbor = tek[mark_edge]
-
+            #     for v in range(3):
+            #         if tri_mesh.elements[i, v] >= temp:
+            #             temp = tri_mesh.elements[i, v]
+            #             mark_edge = v
+            #             neighbor = tek[mark_edge]
+                v = D[i]
+                mark_edge = v[1]
+                neighbor = tek[mark_edge]
             # Строка2-6
-            # if neighbor[1] == neighbor[2]
             # нахождение ребра и координат его середины, создание нового узла(вершины), добавление в массив
             vspom = tri_mesh.elements[i]
             f = vspom.max()
@@ -149,6 +184,7 @@ def test1():
                 el.append([f, len(V) - 1, new_vspom[1]])
                 sig[i] = 1
 
+
             if len(el) < neighbor:
                 if neighbor != -1:
                     vn = tri_mesh.elements[neighbor]
@@ -161,17 +197,67 @@ def test1():
                     else:
                         p = 2
                     vn = np.delete(vspom, p)
-                    # el.insert(neighbor, [m, len(V) - 1, vn[0]])
-                    # el.insert(neighbor, [m, len(V) - 1, vn[1]])
                     if sig[neighbor] != 1:
                         el.append([m, len(V) - 1, vn[0]])
                         el.append([m, len(V) - 1, vn[1]])
                         sig[neighbor] = 1
 
+        # Обновление списка треугольников
+        while len(T) < len(el):
+            l = len(T)
+            T.append(l)
+
+        new_elements = np.array(el)
+        new_nodes = np.array(V)
+
+        # Новый список U
+        for i in range(len(T)):
+            U[i] = []
+        # Строка1
+        for i in range(len(V)):
+            sigma[i] = []
+        # Строка2-4
+        for t in range(len(T)):
+            for v in range(len(V)):
+                if new_elements[t, 0] == v:
+                    sigma[v].insert(0, t)
+                elif new_elements[t, 1] == v:
+                    sigma[v].insert(1, t)
+                elif new_elements[t, 2] == v:
+                    sigma[v].insert(2, t)
+        # Строка5-7
+        for t in range(len(T)):
+            vrem = el[t]
+            for i in range(3):
+                x = vrem[i]
+                temp = []
+                if vrem[0] != x:
+                    temp.insert(0, vrem[0])
+                if vrem[1] != x:
+                    temp.insert(1, vrem[1])
+                if vrem[2] != x:
+                    temp.insert(2, vrem[2])
+                # Строка8
+                k = temp[0]
+                m = temp[1]
+                L = []
+                sig_k = sigma[k]
+                sig_m = sigma[m]
+                for i in range(len(sigma[k])):
+                    for j in range(len(sigma[m])):
+                        if sig_k[i] == sig_m[j]:
+                            L.insert(0, sig_k[i])
+                # Строка9-15
+                if L[0] != t:
+                    U[t].insert(i, L[0])
+                elif len(L) > 1 and L[1] != t:
+                    U[t].insert(i, L[1])
+                else:
+                    U[t].insert(i, -1)
 
     #Обратное преобразование массива в numpy
-    new_nodes = np.array(V)
-    new_elements = np.array(el)
+    # new_nodes = np.array(V)
+    # new_elements = np.array(el)
     print(new_elements)
             #==================================
         #     T.insert()
